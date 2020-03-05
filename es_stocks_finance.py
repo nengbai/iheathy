@@ -6,10 +6,10 @@ from elasticsearch import helpers
 
 class Search(object):
 
-    def __init__(self,index_name,index_type, ip='192.168.1.33'):
+    def __init__(self,index_name,index_type, ip=''):
         self.index_name = index_name
         self.index_type = index_type
-        self.es = Elasticsearch([ip],http_auth=('elastic', 'admin@123'), port=9200)
+        self.es = Elasticsearch([ip],http_auth=('username', 'password'), port=9200)
 
     def create_index(self, index_name="", index_type="",index_map=""):
         """

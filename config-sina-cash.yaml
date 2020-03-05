@@ -1,0 +1,118 @@
+mappings:
+  properties:
+    insert_time:
+      type: date
+      format: yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis
+    trade_date:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    symbol:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    name:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    trade:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    changeratio:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    turnover:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    amount:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    inamount:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    outamount:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    netamount:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    ratioamount:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    r0_in:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r0_out:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r0_net:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r3_in:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r3_out:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r3_net:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r0_ratio:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r3_ratio:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    r0x_ratio:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+
+---
+file : 
+    filename : ""
+    pathDir : ""
+    in_yml_file : ""
+    in_json_file : ""
+    out_yml_file : ""
+    out_json_file : ""
+index : 
+    index_name : "cn_stocks_cashflow-"
+    index_type : "_doc"
+
