@@ -1,0 +1,16 @@
+query:
+  match:
+    trade_date: day
+          
+---
+file : 
+    filename : "cn_stock_2020-02-22.json"
+    pathDir : "/Users/baineng/stocks"
+    in_yml_file : ""
+    in_json_file : ""
+    out_yml_file : ""
+    out_json_file : ""
+index : 
+    index_name : "cn_stocks_day-"
+    index_type : "_doc"
+    

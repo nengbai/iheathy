@@ -1,0 +1,123 @@
+mappings:
+  properties:
+    insert_time:
+      type: date
+      format: yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis
+    trade_date:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    symbol:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    code:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    name:
+      type: text
+      fields:
+        keyword:
+          type: keyword
+    buy:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    changepercent:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    high:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    low:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    open:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    pricechange:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    sell:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    settlement:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    trade:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    turnoverratio:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    amount:
+      type: long
+      fields:
+        keyword:
+          type: keyword
+    pb:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    per:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+    volume:
+      type: long
+      fields:
+        keyword:
+          type: keyword
+    nmc:
+      type: long
+      fields:
+        keyword:
+          type: keyword
+    mktcap:
+      type: long
+      fields:
+        keyword:
+          type: keyword
+    ticktime:
+      type: float
+      fields:
+        keyword:
+          type: keyword
+
+---
+file : 
+    filename : ""
+    pathDir : ""
+    in_yml_file : ""
+    in_json_file : ""
+    out_yml_file : ""
+    out_json_file : ""
+index : 
+    index_name : "cn_stocks_day-"
+    index_type : "_doc"
+
