@@ -6,10 +6,10 @@ from elasticsearch import helpers
 
 class Search(object):
 
-    def __init__(self,index_name,index_type, ip=''):
+    def __init__(self,index_name,index_type, ip='192.168.1.33'):
         self.index_name = index_name
         self.index_type = index_type
-        self.es = Elasticsearch([ip],http_auth=('username', 'password'), port=9200)
+        self.es = Elasticsearch([ip],http_auth=('elastic', 'admin@123'), port=9200)
 
     def create_index(self, index_name="", index_type="",index_map=""):
         """
@@ -72,6 +72,7 @@ class Search(object):
         success, _ = bulk(self.es, ACTIONS, index=self.index_name, raise_on_error=True)
         print('Performed %d actions' % success)
         
+    
     def update_data_byBody(self,doc, id):
         '''
         update data by id
@@ -86,6 +87,33 @@ class Search(object):
         else:
             print("This is zero parameter")
         
+    def update_bult_byQuery(self,get_list):
+        """
+        batch update funcation for add new items and update value
+        create date: 2020-03-07
+        """
+        ACTIONS = []
+        #print(get_list)
+        for line in range(0,len(get_list)):
+            #print(get_list[line]['industry'])
+            action = {
+                '_op_type' : 'update',    # index update create delete  
+                '_index' : self.index_name, #index
+                '_type' : self.index_type,  #type
+                '_id' : get_list[line]['id'],
+                'doc' : {
+                    'area' : get_list[line]['area'],
+                    'industry': get_list[line]['industry']
+                    }
+                }
+            print(action) 
+            ACTIONS.append(action)
+        success, _ = bulk(self.es,ACTIONS,index=self.index_name, raise_on_error=True)
+        print('Performed %d actions' % success)
+        #for ok,response in streaming_bulk(self.es,ACTIONS,index=self.index_name, raise_on_error=True):
+        #    if not ok:
+        #        print(response)
+    
     def update_data_byQuery(self, query, data_list):
         """
         use to add new filed 
@@ -184,3 +212,36 @@ class Search(object):
             else:
                 print("ES query execute error")
                 return 0
+    def get_bult_batch(self,data_list):
+        '''
+        The funcation is to use genaral bult app update data
+        create date: 2020-03-07
+        '''
+        get_list = []
+        for i in range(0,len(data_list)):
+            print(data_list[i])
+            body =  data_list[i]['body']
+            symbol = data_list[i]['symbol']
+            area = data_list[i]['area']
+            industry = data_list[i]['industry']
+            _searched = self.es.search(index=self.index_name,body=body,scroll='5m',size=500)
+            results = _searched['hits']['hits']
+            total = _searched['hits']['total']['value']
+            scroll_id = _searched['_scroll_id']
+            print("scroll_id is:%s",scroll_id)
+            
+            for i in range(0, int(total/100)+1):
+                if  total > 0:
+                    query_scroll = self.es.scroll(scroll_id = scroll_id)['hits']['hits']
+                    results += query_scroll
+                    for hit in results:
+                        if hit['_source']['symbol'] == symbol:
+                            record = {"doc": hit['_source']}
+                            record =  record["doc"]
+                            id = hit['_id']
+                            temp = {'id': id,'area':area,'industry':industry}
+                            get_list.append(temp)
+                        else:
+                            print(hit['_source'])
+                            return 0
+        return get_list
