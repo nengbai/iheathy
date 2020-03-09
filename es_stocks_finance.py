@@ -2,7 +2,27 @@ __author__: "Bai Neng"
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from elasticsearch import helpers
- 
+import logger as lg
+import json,sys,os
+import to_Json_Yaml as tf
+
+
+#  read from yaml config and set log
+current_path = os.path.abspath(".")
+yml_file = os.path.join(current_path, "config-sina-finance-bn.yaml")
+file = open(yml_file, 'r',encoding='utf-8')
+file_data = file.read()
+file.close()
+
+log_list = tf.yaml_toJson(file_data)
+for i in range(0,len(log_list)):
+    if i == 1:
+        log_list = json.loads(log_list[1])
+        logname = log_list['log']['logname']
+        log_level = log_list['log']['level']
+log = lg.Logger(logname,level=log_level)
+
+
 
 class Search(object):
 
@@ -25,7 +45,7 @@ class Search(object):
         _index_mappings = self.index_map
         if self.es.indices.exists(index=index_name) is not True:
             res = self.es.indices.create(index=index_name,body=_index_mappings)
-            print(res)
+            log.logger.info(res)
             
     def bulk_Index_Data(self,put_list):
         '''
@@ -64,13 +84,13 @@ class Search(object):
                      }
                 
                 ACTIONS.append(action)
-                print(ACTIONS)
+                log.logger.info(ACTIONS)
             except:
                 continue
                     
             # 批量处理
         success, _ = bulk(self.es, ACTIONS, index=self.index_name, raise_on_error=True)
-        print('Performed %d actions' % success)
+        log.logger.info('Performed %d actions' % success)
         
     
     def update_data_byBody(self,doc, id):
@@ -82,10 +102,10 @@ class Search(object):
         if id != 0:
             self.id = id
             self.doc = doc
-            print("id:",self.id, "and query is :", self.doc)
+            log.logger.info("id:",self.id, "and query is :", self.doc)
             result = self.es.update(index=self.index_name, id = self.id ,body = self.doc)
         else:
-            print("This is zero parameter")
+            log.logger.info("This is zero parameter")
         
     def update_bult_byQuery(self,get_list):
         """
@@ -106,10 +126,10 @@ class Search(object):
                     'industry': get_list[line]['industry']
                     }
                 }
-            print(action) 
+            log.logger.info(action) 
             ACTIONS.append(action)
         success, _ = bulk(self.es,ACTIONS,index=self.index_name, raise_on_error=True)
-        print('Performed %d actions' % success)
+        log.logger.info('Performed %d actions' % success)
         #for ok,response in streaming_bulk(self.es,ACTIONS,index=self.index_name, raise_on_error=True):
         #    if not ok:
         #        print(response)
@@ -134,7 +154,7 @@ class Search(object):
                 value = values
                 script = "ctx._source." + field + " = '" + value + "'"
                 body = {"query": query, "script": script}
-                print("query is : ", body)
+                log.logger.info("query is : ", body)
                 result = self.es.update_by_query(index=self.index_name, body = body)
                 # add sleep to resolution "version_conflict_engine_exception" when update the same doc
                 time.sleep(5)
@@ -210,7 +230,7 @@ class Search(object):
                         return 0
                 return get_list
             else:
-                print("ES query execute error")
+                log.logger.info("ES query execute error")
                 return 0
     def get_bult_batch(self,data_list):
         '''
@@ -219,7 +239,6 @@ class Search(object):
         '''
         get_list = []
         for i in range(0,len(data_list)):
-            print(data_list[i])
             body =  data_list[i]['body']
             symbol = data_list[i]['symbol']
             area = data_list[i]['area']
@@ -228,7 +247,6 @@ class Search(object):
             results = _searched['hits']['hits']
             total = _searched['hits']['total']['value']
             scroll_id = _searched['_scroll_id']
-            print("scroll_id is:%s",scroll_id)
             
             for i in range(0, int(total/100)+1):
                 if  total > 0:
@@ -242,6 +260,8 @@ class Search(object):
                             temp = {'id': id,'area':area,'industry':industry}
                             get_list.append(temp)
                         else:
-                            print(hit['_source'])
+                            log.logger.info(hit['_source'])
                             return 0
         return get_list
+    
+    

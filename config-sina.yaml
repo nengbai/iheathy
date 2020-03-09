@@ -120,4 +120,8 @@ file :
 index : 
     index_name : "cn_stocks_day-"
     index_type : "_doc"
+    
+log :
+    level : "debug"
+    logname : "stock_day.log"
 

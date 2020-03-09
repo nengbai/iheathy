@@ -115,4 +115,7 @@ file :
 index : 
     index_name : "cn_stocks_cashflow-"
     index_type : "_doc"
+log :
+    level : "debug"
+    logname : "stock_cash.log"
 
