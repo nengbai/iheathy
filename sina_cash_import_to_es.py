@@ -5,7 +5,6 @@ import urllib.request
 import tushare as ts
 import re,json,sys,os
 import datetime,time
-import logger as lg
 
 def sinaStockUrl( max_pg ):
     
@@ -46,36 +45,34 @@ def sinaStockData(url_list):
             stockData.append(column) 
     return stockData
         
+
 if __name__ == '__main__':
+    
     if (len(sys.argv) <2):
         print('Please input paramente:trade_date,format [yyyy.mm.dd] and load_time ,format [yyyy.mm.dd hh:mm:ss]')
         exit("sorry,please input correct parameter")
     else:
         trade_date = sys.argv[1]
         load_time = sys.argv[2]
-    #trade_date = '2020.02.28'
-    #load_time = '2020-02-28 12:00:00'
+    '''
     
-    # 1. check if it's trade date for input trade_date
-    #ts.set_token('39dc678ce257d84ee9d3eeb5c404f0df39089b3c8f9adb83b247253a')
-    #pro = ts.pro_api()
-    #trade = pro.query('trade_cal', start_date=trade_date, end_date=trade_date)
-    #trade = trade.to_dict(orient='records')
-    #if trade[0]['is_open'] == 1: 
-    #else:
-    #    print("Sorry,today:%s isn't trade date:",trade_date, )
+    trade_date = '2020.03.11'
+    load_time = '2020-03-11 12:00:00'
+    '''
         
-    # 2. get stock raw data from sina url link and append items: load_time and trade_date
+    '''
+    2. get stock raw data from sina url link and append items: load_time and trade_date
+    '''
     url = sinaStockUrl(66)
     str_stocks = sinaStockData(url)
     print(str_stocks)
     
-    put_list = []
+    list = []
     for i in range(0,len(str_stocks)):
         li = str_stocks[i]
         li['insert_time'] = load_time
         li['trade_date'] = trade_date
-        put_list.append(li)
+        list.append(li)
         
     # 3. read from yaml config 
     current_path = os.path.abspath(".")
@@ -84,7 +81,10 @@ if __name__ == '__main__':
     file_data = file.read()
     file.close()
     
-    # 4. Ready for index mapping and log setting
+    '''
+    4. Ready for index mapping setting
+    '''
+    
     data_list = tf.yaml_toJson(file_data)
     for i in range(0,len(data_list)):
         if i == 0:
@@ -95,19 +95,11 @@ if __name__ == '__main__':
             index_name = file_list['index']['index_name']
             index_name = index_name + trade_date
             index_type = file_list['index']['index_type']
-            logname = file_list['log']['logname']
-            log_level = file_list['log']['level']
-            
-    log = lg.Logger(logname,level=log_level)
+    '''
+    5. Ready to load stock data to ES
+    '''
     
-    # 5. Ready to load stock data to ES
     obj = es.Search(index_name, index_type)
-    if obj == None:
-        log.logger.info("index:%s isn't exit",index_name)
-        obj.create_index(index_name,index_type,index_map)
-        obj.bulk_Index_Data(put_list)
-        log.logger.info("create index:%s",index_name)
-    else:
-        obj.bulk_Index_Data(put_list)
-        log.logger.info("index:%s is exit",index_name)
+    obj.create_index(index_name,index_type,index_map)
+    obj.bulk_Index_Data(list)
     
