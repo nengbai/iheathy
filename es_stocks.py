@@ -22,7 +22,7 @@ log = lg.Logger(logname,level=log_level)
 
 class Search(object):
 
-    def __init__(self,index_name,index_type, ip='192.168.1.33'):
+    def __init__(self,index_name,index_type, ip='192.168.1.34'):
         self.index_name = index_name
         self.index_type = index_type
         self.es = Elasticsearch([ip],http_auth=('elastic', 'admin@123'), port=9200)
@@ -36,7 +36,7 @@ class Search(object):
         self.index_name = index_name
         self.index_type = index_type
         self.index_map = index_map
-        
+        print(index_map)
         # 索引 相当于数据库中的 库名
         _index_mappings = self.index_map
         if self.es.indices.exists(index=index_name) is not True:
@@ -156,14 +156,25 @@ class Search(object):
                 results.append(result)
         return results
     
-    def delete_index_data(self,id):
+    def delete_index_data(self,dl_list):
         '''
-        delete item by id
+        Update by Bai Neng on March 26th,2020: batch delete item by id.
         :param id:
         :return:
-        '''
-        res = self.es.delete(index=self.index_name, doc_type=self.index_type, id=id)
-        log.logger.info(res)
+        '''        
+        ACTIONS = []
+        for line in dl_list:
+            action = {
+                '_op_type' : 'delete',    # index update create delete  
+                '_index' : self.index_name, #index
+                '_type' : self.index_type,  #type
+                '_id' : line,
+                'doc' : { }
+                }
+            #log.logger.info(action) 
+            ACTIONS.append(action)
+        success, _ = bulk(self.es,ACTIONS,index=self.index_name, raise_on_error=True)
+        log.logger.info('Performed %d actions' % success)
     
     def get_data_byinput(self,body, field,value):
         '''
@@ -199,11 +210,12 @@ class Search(object):
         
     def get_data_batch(self,trade_date,body):
         '''
+        update by Bai Neng: on March 26,2020 for batch delete query
         find data from ES
         '''
         self.trade_date = trade_date
         self.body = body
-        _searched = self.es.search(index=self.index_name,body=self.body,scroll='5m',size=5000)
+        _searched = self.es.search(index=self.index_name,body=self.body,scroll='5m',size=500)
         results = _searched['hits']['hits']
         total = _searched['hits']['total']['value']
         scroll_id = _searched['_scroll_id']
@@ -212,21 +224,22 @@ class Search(object):
         get_list = []
         for i in range(0, int(total/100)+1):
             if  total > 0:
-                query_scroll = self.es.scroll(scroll_id=scroll_id,scroll='5m')['hits']['hits']
+                query_scroll = self.es.scroll(scroll_id = scroll_id)['hits']['hits']
                 results += query_scroll
                 for hit in results:
-                    if hit['_source']['trade_date'] == trade_date:
-                       record = {"doc": hit['_source']}
-                       record =  record["doc"]
-                       id = hit['_id']
-                       get_list.append([record,id])
-                    else:
-                        log.logger.info(hit['_source'])
-                        return 0
+                   # if hit['_source']['trade_date'] == trade_date:
+                    record = {"doc": hit['_source']}
+                    record =  record["doc"]
+                    id = hit['_id']
+                    get_list.append([record,id])
+                    #else:
+                    #    print(hit['_source'])
+                    #    return 0
                 return get_list
             else:
                 log.logger.info("ES query execute error")
                 return 0
+    
     def get_bult_batch(self,data_list):
         '''
         The funcation is to use genaral bult app update data
