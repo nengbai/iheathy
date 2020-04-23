@@ -30,7 +30,10 @@ def sinaStockData(url_list):
     for url in range(0,len(url_list)):
         #print(url_list[url])
         histData = urllib.request.urlopen(url_list[url]).read()
-        histData = histData.decode('gbk')
+        '''
+        On April 23: Change histData.decode('gbk') to histData.decode('unicode_escape')
+        '''
+        histData = histData.decode('unicode_escape')
         histData = str(histData).split('[')[1]
         histData = histData[1:len(histData) - 4].split('},{')
         for i in range(0, len(histData)):
@@ -39,6 +42,7 @@ def sinaStockData(url_list):
             for j in range(0, len(dayData)):
                 field = dayData[j].split(':')
                 try:
+                    field[0] = field[0].replace('"', '')
                     column[field[0]] = field[1].replace('"', '')
                 except:
                     continue
