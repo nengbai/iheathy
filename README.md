@@ -9,6 +9,49 @@
   docker.elastic.co/elasticsearch/elasticsearch   7.6.0               5d2812e0e41c        4 weeks ago         790MB
   ```
 2. Start Elastic Search,Kibana and Grafana
+2.1 Use docker compose to build docker-compose.yml
+```
+version: '2'
+services:
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      "TZ": "Asia/Shanghai"
+      "discovery.type": "single-node"
+    volumes:
+      - ~/Documents/mydev/elk/es/config:/usr/share/elasticsearch/config
+      - ~/Documents/mydev/elk/es/data:/usr/share/elasticsearch/data
+      - ~/Documents/mydev/elk/es/logs:/usr/share/elasticsearch/logs
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.6.0
+    ports:
+      - "5601:5601"
+    environment:
+      "TZ": "Asia/Shanghai"
+      "ELASTICSEARCH_URL": "http://127.0.0.1:9200"
+    volumes:
+      - ~/Documents/mydev/elk/kibana/data:/usr/share/kibana/data
+      - ~/Documents/mydev/elk/kibana/config:/usr/share/kibana/config
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: "Asia/Shanghai"
+    volumes:
+      - ~/Documents/mydev/elk/grafana/data:/var/lib/grafana
+      - ~/Documents/mydev/elk/grafana/conf:/usr/share/grafana/conf
+```
+
+
+
+2.2 Use script to start ELK 
+
 ```
    #!/bin/bash
    basedir=$(cd `dirname $0`;pwd)
