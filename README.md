@@ -1,4 +1,4 @@
-# iheathy platform is to collect stock trade data and aninalysis stock trade treend with Elastic Search, Machine learning and python language. And show user analysis dashboard from grafana and kibana.
+# iheathy platform is to collect stock trade data and aninalysis stock trade trend with Elastic Search, Machine learning and python language. And show user analysis dashboard from grafana and kibana.
 
 1. Build devlopment envirnament base on container 
   ```
